@@ -43,6 +43,7 @@ app.post('/api/users/:id/exercises', (req, res) => {
   
   const user = users.find(u => u._id === userId)
   if (!user) {return res.json({ error: "User not found"})}
+  console.log("User found:", user);
   const description = req.body.description
   const duration = parseInt(req.body.duration);
   
@@ -75,24 +76,38 @@ app.get('/api/users/:id/exercises', (req, res) => {
 
   if (!user) { return res.json({ error: "User not found"})}
   
-  const log = user.exercises.map(exercise => ({
-    description: exercise.description,
-    duration: exercise.duration,
-    date: exercise.date
-  }));
-
+  
   res.json(user.exercises);
 });
 
-formatDate = (date) => {
-  const options = { weekend: 'short', year: 'numeric', month: 'short', day: 'numeric'};
-  const formattedDate = date.toLocaleDateString('en-US', options);
+app.get('/api/users/:id/logs', (req, res) => {
+  const userId = req.params.id;
+  const user = users.find(u => u._id === userId)
 
-  return formattedDate.replace(',', '');
-}
+  if (!user) { return res.json({ error: "User not found"})}
+  const log = user.exercises.map(exercise => ({description: exercise.description,
+    duration: exercise.duration,
+    date: exercise.date}));
+  const logs = {
+    username: user.username,
+    count: user.exercises.length,
+    _id: userId,
+    log
+  
+  };
+  console.log("log" ,logs)
+  res.json(logs)
+})
+
+// formatDate = (date) => {
+//   const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'};
+//   const formattedDate = date.toLocaleDateString('en-US', options);
+
+//   return formattedDate.replace(',', '');
+// }
 
 
-const listener = app.listen(process.env.PORT || 3000, () => {
+const listener = app.listen(process.env.PORT || 3001, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
 

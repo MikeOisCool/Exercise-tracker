@@ -84,19 +84,40 @@ app.get('/api/users/:id/logs', (req, res) => {
   const userId = req.params.id;
   const user = users.find(u => u._id === userId)
 
+  
+
   if (!user) { return res.json({ error: "User not found"})}
-  const log = user.exercises.map(exercise => ({description: exercise.description,
+  let log = user.exercises.map(exercise => ({description: exercise.description,
     duration: exercise.duration,
     date: exercise.date}));
-  const logs = {
+
+  const { from, to, limit } = req.query;
+
+  let logs = {
     username: user.username,
     count: user.exercises.length,
     _id: userId,
     log
+    };
+
+    if (from) {
+      log = log.filter(exercise => new Date(exercise.date) >= new Date(from));
+    }
   
-  };
+    if (to) {
+      log = log.filter(exercise => new Date(exercise.date) <= new Date(to));
+    }
+  
+    // Limit der zurückgegebenen Einträge
+    if (limit) {
+      log = log.slice(0, parseInt(limit));
+    }
+
   console.log("log" ,logs)
-  res.json(logs)
+  res.json({username: user.username,
+    count: log.length, // Anzahl der gefilterten Übungen
+    _id: userId,
+    log: log})
 })
 
 // formatDate = (date) => {

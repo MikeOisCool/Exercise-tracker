@@ -93,6 +93,7 @@ app.get('/api/users/:id/logs', (req, res) => {
 
   const { from, to, limit } = req.query;
 
+  
   let logs = {
     username: user.username,
     count: user.exercises.length,
